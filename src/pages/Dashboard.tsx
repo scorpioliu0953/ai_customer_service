@@ -73,19 +73,25 @@ export default function Dashboard() {
 
       const { error: uploadError } = await supabase.storage
         .from('knowledge_base')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Supabase Upload Error Details:', uploadError);
+        throw new Error(uploadError.message);
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('knowledge_base')
         .getPublicUrl(filePath);
 
       setSettings({ ...settings, reference_file_url: publicUrl });
-      alert('檔案上傳成功！請記得點擊下方的「儲存變更」以更新系統設定。');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('檔案上傳失敗');
+      alert('檔案上傳成功！請點擊下方的「儲存變更」按鈕。');
+    } catch (error: any) {
+      console.error('Full Upload Error:', error);
+      alert(`上傳失敗：${error.message || '未知錯誤'}。請確認您已在 Supabase 建立名為 knowledge_base 的 Bucket。`);
     } finally {
       setSaving(false);
     }
