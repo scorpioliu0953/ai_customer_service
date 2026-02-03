@@ -228,60 +228,10 @@ export default function Dashboard() {
           </div>
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">客服專員 LINE IDs (通知用)</label>
-            <input type="text" name="agent_user_ids" value={settings.agent_user_ids || ''} onChange={handleChange} placeholder="U123..., U456..." className="w-full px-4 py-2 border rounded-lg" />
-          </div>
-        </div>
-      </div>
-
-      <HandoverList />
-    </div>
-  );
-}
-
-function HandoverList() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchHandoverUsers();
-    const interval = setInterval(fetchHandoverUsers, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchHandoverUsers = async () => {
-    const { data, error } = await supabase.from('user_states').select('*').eq('is_human_mode', true).order('last_human_interaction', { ascending: false });
-    if (!error) setUsers(data || []);
-    setLoading(false);
-  };
-
-  const switchToAI = async (userId: string) => {
-    const { error } = await supabase.from('user_states').update({ is_human_mode: false }).eq('line_user_id', userId);
-    if (!error) {
-      alert('已成功切換回 AI 客服');
-      fetchHandoverUsers();
-    }
-  };
-
-  if (loading || users.length === 0) return null;
-
-  return (
-    <div className="bg-white p-8 rounded-xl shadow-sm border border-red-100 space-y-4">
-      <h3 className="text-lg font-bold text-red-600 flex items-center gap-2"><Bot className="w-5 h-5" />待處理專人請求</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead><tr className="border-b">
-            <th className="py-2 px-4"> 暱稱</th><th className="py-2 px-4">ID</th><th className="py-2 px-4">時間</th><th className="py-2 px-4">操作</th>
-          </tr></thead>
-          <tbody>{users.map(user => (
-            <tr key={user.line_user_id} className="border-b hover:bg-red-50">
-              <td className="py-2 px-4">{user.nickname || '未知'}</td>
-              <td className="py-2 px-4 font-mono text-xs">{user.line_user_id}</td>
-              <td className="py-2 px-4">{new Date(user.last_human_interaction).toLocaleString()}</td>
-              <td className="py-2 px-4"><button onClick={() => switchToAI(user.line_user_id)} className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">轉回 AI</button></td>
-            </tr>
-          ))}</tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
+                        <input type="text" name="agent_user_ids" value={settings.agent_user_ids || ''} onChange={handleChange} placeholder="U123..., U456..." className="w-full px-4 py-2 border rounded-lg" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }

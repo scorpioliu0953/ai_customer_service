@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import AgentService from './pages/AgentService';
 import ChatLogs from './pages/ChatLogs';
 import Layout from './components/Layout';
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
         <Route element={session ? <Layout /> : <Navigate to="/login" />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/agent" element={<AgentService />} />
           <Route path="/logs" element={<ChatLogs />} />
         </Route>
       </Routes>

@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { LayoutDashboard, MessageSquare, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, LogOut, Settings, UserCheck } from 'lucide-react';
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -25,6 +25,10 @@ export default function Layout() {
           <Link to="/" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
             <LayoutDashboard className="w-5 h-5" />
             系統設定
+          </Link>
+          <Link to="/agent" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors">
+            <UserCheck className="w-5 h-5" />
+            專人客服
           </Link>
           <Link to="/logs" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
             <MessageSquare className="w-5 h-5" />
