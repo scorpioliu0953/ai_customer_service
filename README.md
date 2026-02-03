@@ -2,8 +2,6 @@
 
 這是一個完整、現代化的 AI 客服解決方案。整合了 **OpenAI GPT-5/4**、**Google Gemini 3/1.5**，並具備知識庫（PDF/純文字）讀取能力與 LINE 真人客服轉接系統。
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/scorpioliu0953/ai_customer_service)
-
 ---
 
 ## 🌟 功能亮點
@@ -20,9 +18,19 @@
 
 請依照以下四個步驟完成您的系統搭建：
 
-### 步驟一：Fork 專案
+### 步驟一：獲取專案程式碼
+您可以選擇以下 **其中一種** 方式開始：
+
+#### 方案 A：標準 Fork (推薦)
 1.  點擊頁面右上角的 **Fork** 按鈕，將此專案複製到您的 GitHub 帳號。
-2.  將 Fork 後的專案 Clone 到您的本地電腦（選用）。
+2.  這能讓您自由修改程式碼並保有自己的版本紀錄。
+
+#### 方案 B：一鍵自動部署 (最快)
+點擊下方按鈕，Netlify 會自動幫您 Fork 專案並連結部署：
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/scorpioliu0953/ai_customer_service)
+
+---
 
 ### 步驟二：Supabase 資料庫設定
 1.  登入 [Supabase 控制台](https://supabase.com/) 並建立一個新專案。
@@ -33,10 +41,9 @@
     *   前往 **Authentication > Users** -> **Add User**。
     *   手動建立一組 Email 與密碼（用於登入客服後台）。
 
-### 步驟三：Netlify 雲端部署
-1.  點擊本頁上方的 **[Deploy to Netlify]** 按鈕。
-2.  連結您剛才 Fork 的 GitHub 儲存庫。
-3.  在 **Site configuration > Environment variables** 中設定以下四個必填變數：
+### 步驟三：Netlify 雲端設定
+1.  進入您的 Netlify 專案控制台。
+2.  在 **Site configuration > Environment variables** 中設定以下四個必填變數：
 
 | 變數名稱 | 來源 (Supabase Project Settings > API) | 說明 |
 | :--- | :--- | :--- |
@@ -45,7 +52,7 @@
 | `SUPABASE_URL` | **Project URL** | 後端 Function 呼叫 (與前端相同) |
 | `SUPABASE_SERVICE_ROLE_KEY` | **API Key (service_role)** | **絕對機密！** 後端專用最高權限 |
 
-4.  設定完畢後，點擊 **Deploy** 等待部署完成。
+3.  設定完畢後，前往 **Deploys** 點擊 **Trigger deploy** 重新發布，使變數生效。
 
 ### 步驟四：LINE Messaging API 串接
 1.  登入 [LINE Developers Console](https://developers.line.biz/)。
