@@ -35,7 +35,7 @@ export default function AgentService() {
 
       if (error) throw error;
 
-      alert('已成功切換回 AI 客服，系統將在接下來 3 分鐘內忽略該用戶的轉接關鍵字。');
+      alert('已成功切換回 AI 客服。');
       fetchHandoverUsers();
     } catch (err: any) {
       console.error('Switch back to AI error:', err);
