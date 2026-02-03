@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { MessageCircle, User, Bot, Clock } from 'lucide-react';
+import { User, Bot, Clock } from 'lucide-react';
 
 export default function ChatLogs() {
   const [logs, setLogs] = useState<any[]>([]);

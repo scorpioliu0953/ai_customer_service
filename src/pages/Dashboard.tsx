@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Save, RefreshCcw, Copy, ExternalLink, Bot, MessageCircle } from 'lucide-react';
+import { Save, RefreshCcw, Copy, Bot, MessageCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
