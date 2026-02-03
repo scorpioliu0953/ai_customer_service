@@ -36,7 +36,12 @@ export const handler: Handler = async (event) => {
       // 檢查用戶狀態 (是否在真人模式)
       const { data: userState } = await supabase.from('user_states').select('*').eq('line_user_id', userId).single();
       
-      const handoverKeywords = settings.handover_keywords.split(',').map((k: string) => k.trim());
+      // 修正：過濾掉空字串，確保不會因為空關鍵字而誤觸
+      const handoverKeywords = settings.handover_keywords
+        ?.split(',')
+        .map((k: string) => k.trim())
+        .filter((k: string) => k !== '') || [];
+      
       const isKeywordHit = handoverKeywords.some((k: string) => userMessage.includes(k));
 
       // 冷卻機制：如果 3 分鐘內才剛手動重設過，則忽略關鍵字偵測
@@ -48,7 +53,7 @@ export const handler: Handler = async (event) => {
         }
       }
 
-      if (isKeywordHit && !isCooldown) {
+      if (handoverKeywords.length > 0 && isKeywordHit && !isCooldown) {
         let nickname = '匿名用戶';
         try { const p = await lineClient.getProfile(userId); nickname = p.displayName; } catch (e) {}
         await supabase.from('user_states').upsert({ line_user_id: userId, nickname, is_human_mode: true, last_human_interaction: new Date().toISOString() });
