@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.settings (
     -- Common AI Settings
     system_prompt TEXT DEFAULT '你是一個專業的客服助手。',
     reference_text TEXT DEFAULT '',
+    reference_file_url TEXT DEFAULT '',
     
     -- LINE Settings
     line_channel_access_token TEXT,

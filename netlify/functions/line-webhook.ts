@@ -3,8 +3,9 @@ import { Client, validateSignature, WebhookEvent } from '@line/bot-sdk';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import fetch from 'node-fetch';
 
-// Initialize Supabase with Service Role Key for backend access
+// ... (rest of the initial parts)
 const supabase = createClient(
   process.env.SUPABASE_URL || '',
   process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -137,16 +138,31 @@ export const handler: Handler = async (event) => {
 async function callGPT(settings: any, history: any[], currentMessage: string) {
   const openai = new OpenAI({ apiKey: settings.gpt_api_key });
   
+  let fileContent = '';
+  if (settings.reference_file_url) {
+    try {
+      const response = await fetch(settings.reference_file_url);
+      if (response.ok) {
+        fileContent = await response.text();
+        // Simple strategy: if it's text, append to context. 
+        // Note: For binary PDFs, this simple fetch might need more parsing logic.
+      }
+    } catch (e) {
+      console.error('Fetch file error:', e);
+    }
+  }
+
   const messages: any[] = [
-    { role: 'system', content: `${settings.system_prompt}\n\n參考資料：\n${settings.reference_text}` }
+    { 
+      role: 'system', 
+      content: `${settings.system_prompt}\n\n參考文字：\n${settings.reference_text}\n\n檔案內容參考：\n${fileContent}` 
+    }
   ];
 
   for (const h of history) {
     messages.push({ role: h.sender === 'user' ? 'user' : 'assistant', content: h.message });
   }
 
-  // Current message is already in history? No, history was fetched *before* logging current?
-  // Let's make sure current is included if not already.
   if (history[history.length - 1]?.message !== currentMessage) {
     messages.push({ role: 'user', content: currentMessage });
   }
@@ -165,6 +181,27 @@ async function callGemini(settings: any, history: any[], currentMessage: string)
   const genAI = new GoogleGenerativeAI(settings.gemini_api_key);
   const model = genAI.getGenerativeModel({ model: settings.gemini_model_name });
 
+  let filePart: any = null;
+  if (settings.reference_file_url) {
+    try {
+      const response = await fetch(settings.reference_file_url);
+      if (response.ok) {
+        const buffer = await response.arrayBuffer();
+        const base64Data = Buffer.from(buffer).toString('base64');
+        const mimeType = settings.reference_file_url.endsWith('.pdf') ? 'application/pdf' : 'text/plain';
+        
+        filePart = {
+          inlineData: {
+            data: base64Data,
+            mimeType: mimeType
+          }
+        };
+      }
+    } catch (e) {
+      console.error('Fetch file error:', e);
+    }
+  }
+
   const chat = model.startChat({
     history: history.map(h => ({
       role: h.sender === 'user' ? 'user' : 'model',
@@ -176,9 +213,17 @@ async function callGemini(settings: any, history: any[], currentMessage: string)
     },
   });
 
-  const prompt = `System Instructions: ${settings.system_prompt}\n\nReference Info: ${settings.reference_text}\n\nUser Message: ${currentMessage}`;
+  const promptParts: any[] = [
+    { text: `System Instructions: ${settings.system_prompt}\n\nReference Info: ${settings.reference_text}` }
+  ];
+
+  if (filePart) {
+    promptParts.push(filePart);
+  }
+
+  promptParts.push({ text: `User Message: ${currentMessage}` });
   
-  const result = await chat.sendMessage(prompt);
+  const result = await chat.sendMessage(promptParts);
   const response = await result.response;
   return response.text();
 }

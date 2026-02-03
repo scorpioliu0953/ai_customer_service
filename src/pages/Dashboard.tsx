@@ -61,6 +61,36 @@ export default function Dashboard() {
     alert('Webhook URL 已複製');
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSaving(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `kb/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('knowledge_base')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('knowledge_base')
+        .getPublicUrl(filePath);
+
+      setSettings({ ...settings, reference_file_url: publicUrl });
+      alert('檔案上傳成功！請記得點擊下方的「儲存變更」以更新系統設定。');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('檔案上傳失敗');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) return <div>載入中...</div>;
   if (!settings) return <div>找不到設定檔</div>;
 
@@ -202,11 +232,19 @@ export default function Dashboard() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">參考檔案上傳 (目前僅供記錄，AI 讀取功能需搭配後端 RAG)</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex flex-col items-center justify-center text-gray-500 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
+            <label className="block text-sm font-medium text-gray-700 mb-1">參考檔案上傳 (支援 PDF, TXT)</label>
+            <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-gray-500 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
+              <input
+                type="file"
+                accept=".pdf,.txt"
+                onChange={handleFileUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
               <RefreshCcw className="w-8 h-8 mb-2" />
-              <p>拖曳檔案至此或點擊上傳</p>
-              <p className="text-xs mt-1">支援 PDF, TXT, DOCX</p>
+              <p>{settings.reference_file_url ? '檔案已上傳 (點擊更換)' : '拖曳檔案至此或點擊上傳'}</p>
+              {settings.reference_file_url && (
+                <p className="text-xs text-blue-600 mt-2 break-all">{settings.reference_file_url}</p>
+              )}
             </div>
           </div>
         </div>
